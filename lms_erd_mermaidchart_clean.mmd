@@ -1,0 +1,308 @@
+erDiagram
+  users {
+    BIGINT id PK
+    VARCHAR name
+    VARCHAR email
+  }
+
+  courses {
+    BIGINT id PK
+    VARCHAR title
+    VARCHAR slug
+    TEXT summary
+    TEXT description
+    VARCHAR thumbnail_url
+    VARCHAR level
+    VARCHAR language
+    VARCHAR status
+    VARCHAR access_mode
+    INT price_cents
+    CHAR currency
+    BIGINT created_by
+    TIMESTAMP published_at
+  }
+
+  course_sections {
+    BIGINT id PK
+    BIGINT course_id
+    VARCHAR title
+    INT position
+  }
+
+  course_lessons {
+    BIGINT id PK
+    BIGINT section_id
+    VARCHAR title
+    VARCHAR content_type
+    VARCHAR content_url
+    INT duration_seconds
+    INT is_preview
+    INT position
+  }
+
+  course_instructors {
+    BIGINT course_id PK
+    BIGINT user_id PK
+    INT is_primary
+  }
+
+  categories {
+    BIGINT id PK
+    VARCHAR name
+    VARCHAR slug
+    BIGINT parent_id
+  }
+
+  course_category {
+    BIGINT course_id PK
+    BIGINT category_id PK
+  }
+
+  tags {
+    BIGINT id PK
+    VARCHAR name
+    VARCHAR slug
+  }
+
+  course_tag {
+    BIGINT course_id PK
+    BIGINT tag_id PK
+  }
+
+  enrollments {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT course_id
+    VARCHAR source
+    TIMESTAMP enrolled_at
+    TIMESTAMP expires_at
+  }
+
+  lesson_progress {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT lesson_id
+    DECIMAL progress_pct
+    INT seconds_watched
+    TIMESTAMP completed_at
+  }
+
+  course_progress {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT course_id
+    DECIMAL progress_pct
+    TIMESTAMP completed_at
+  }
+
+  subscription_plans {
+    BIGINT id PK
+    VARCHAR name
+    TEXT description
+    INT price_cents
+    CHAR currency
+    VARCHAR interval
+    INT trial_days
+    INT access_all_courses
+    INT is_active
+  }
+
+  plan_course {
+    BIGINT plan_id PK
+    BIGINT course_id PK
+  }
+
+  user_subscriptions {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT plan_id
+    VARCHAR status
+    TIMESTAMP started_at
+    TIMESTAMP current_period_start
+    TIMESTAMP current_period_end
+    TIMESTAMP canceled_at
+    TIMESTAMP ends_at
+    VARCHAR provider
+    VARCHAR provider_sub_id
+    TIMESTAMP last_payment_at
+  }
+
+  payment_transactions {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT subscription_id
+    BIGINT course_id
+    INT amount_cents
+    CHAR currency
+    VARCHAR status
+    VARCHAR provider
+    VARCHAR provider_payment_id
+    VARCHAR receipt_url
+    TIMESTAMP created_at
+  }
+
+  coupons {
+    BIGINT id PK
+    VARCHAR code
+    VARCHAR type
+    INT amount
+    INT max_redemptions
+    INT redeemed_count
+    TIMESTAMP starts_at
+    TIMESTAMP ends_at
+    INT is_active
+  }
+
+  coupon_redemptions {
+    BIGINT id PK
+    BIGINT coupon_id
+    BIGINT user_id
+    BIGINT subscription_id
+    BIGINT course_id
+    INT amount_cents_applied
+    TIMESTAMP created_at
+  }
+
+  quizzes {
+    BIGINT id PK
+    BIGINT lesson_id
+    VARCHAR title
+    INT passing_score
+    INT attempts_allowed
+    INT time_limit_minutes
+  }
+
+  quiz_questions {
+    BIGINT id PK
+    BIGINT quiz_id
+    VARCHAR type
+    TEXT text
+    INT points
+  }
+
+  quiz_options {
+    BIGINT id PK
+    BIGINT question_id
+    TEXT text
+    INT is_correct
+    INT weight
+  }
+
+  quiz_attempts {
+    BIGINT id PK
+    BIGINT quiz_id
+    BIGINT user_id
+    TIMESTAMP started_at
+    TIMESTAMP submitted_at
+    INT score
+    INT passed
+  }
+
+  quiz_answers {
+    BIGINT id PK
+    BIGINT attempt_id
+    BIGINT question_id
+    BIGINT option_id
+    TEXT free_text
+    INT is_correct
+    INT points_awarded
+  }
+
+  certificate_templates {
+    BIGINT id PK
+    VARCHAR name
+    TEXT template_html
+    VARCHAR background_image_url
+    BIGINT created_by
+  }
+
+  certificates {
+    BIGINT id PK
+    BIGINT user_id
+    BIGINT course_id
+    BIGINT template_id
+    CHAR code
+    TIMESTAMP issued_at
+    DECIMAL grade
+    TIMESTAMP expires_at
+    VARCHAR public_url
+  }
+
+  course_reviews {
+    BIGINT id PK
+    BIGINT course_id
+    BIGINT user_id
+    INT rating
+    TEXT comment
+    INT is_public
+    TIMESTAMP created_at
+  }
+
+  wishlists {
+    BIGINT user_id PK
+    BIGINT course_id PK
+    TIMESTAMP created_at
+  }
+
+  media_assets {
+    BIGINT id PK
+    BIGINT owner_id
+    VARCHAR type
+    VARCHAR provider
+    VARCHAR url
+    VARCHAR storage_path
+    VARCHAR mime_type
+    BIGINT size_bytes
+    INT duration_seconds
+    TIMESTAMP created_at
+  }
+
+  lesson_media {
+    BIGINT lesson_id PK
+    BIGINT media_id PK
+  }
+
+  %% Relationships
+  courses }o--|| users : created_by_to_id
+  course_sections }o--|| courses : course_id_to_id
+  course_lessons }o--|| course_sections : section_id_to_id
+  course_instructors }o--|| courses : course_id_to_id
+  course_instructors }o--|| users : user_id_to_id
+  categories }o--|| categories : parent_id_to_id
+  course_category }o--|| courses : course_id_to_id
+  course_category }o--|| categories : category_id_to_id
+  course_tag }o--|| courses : course_id_to_id
+  course_tag }o--|| tags : tag_id_to_id
+  enrollments }o--|| users : user_id_to_id
+  enrollments }o--|| courses : course_id_to_id
+  lesson_progress }o--|| users : user_id_to_id
+  lesson_progress }o--|| course_lessons : lesson_id_to_id
+  course_progress }o--|| users : user_id_to_id
+  course_progress }o--|| courses : course_id_to_id
+  plan_course }o--|| subscription_plans : plan_id_to_id
+  plan_course }o--|| courses : course_id_to_id
+  user_subscriptions }o--|| users : user_id_to_id
+  user_subscriptions }o--|| subscription_plans : plan_id_to_id
+  payment_transactions }o--|| users : user_id_to_id
+  payment_transactions }o--|| user_subscriptions : subscription_id_to_id
+  payment_transactions }o--|| courses : course_id_to_id
+  coupon_redemptions }o--|| coupons : coupon_id_to_id
+  coupon_redemptions }o--|| users : user_id_to_id
+  coupon_redemptions }o--|| user_subscriptions : subscription_id_to_id
+  coupon_redemptions }o--|| courses : course_id_to_id
+  quizzes }o--|| course_lessons : lesson_id_to_id
+  quiz_questions }o--|| quizzes : quiz_id_to_id
+  quiz_options }o--|| quiz_questions : question_id_to_id
+  quiz_attempts }o--|| quizzes : quiz_id_to_id
+  quiz_attempts }o--|| users : user_id_to_id
+  quiz_answers }o--|| quiz_attempts : attempt_id_to_id
+  quiz_answers }o--|| quiz_questions : question_id_to_id
+  quiz_answers }o--|| quiz_options : option_id_to_id
+  certificates }o--|| users : user_id_to_id
+  certificates }o--|| courses : course_id_to_id
+  certificates }o--|| certificate_templates : template_id_to_id
+  course_reviews }o--|| courses : course_id_to_id
+  course_reviews }o--|| users : user_id_to_id
+  media_assets }o--|| users : owner_id_to_id
+  lesson_media }o--|| course_lessons : lesson_id_to_id
+  lesson_media }o--|| media_assets : media_id_to_id
