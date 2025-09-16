@@ -14,6 +14,8 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::view('/rbac', 'rbac.index')->name('rbac.index');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
