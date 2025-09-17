@@ -16,6 +16,7 @@ Route::middleware('auth')->group(function () {
 
     Route::view('/rbac', 'rbac.index')->name('rbac.index');
     Route::view('/users', 'users.index')->name('users.index');
+    Route::view('/media-test', 'media.test')->name('media.test');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

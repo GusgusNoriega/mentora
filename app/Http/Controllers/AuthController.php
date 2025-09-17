@@ -67,4 +67,38 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+    public function apiLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => ['required','email'],
+            'password' => ['required','min:6'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Gestionar tokens: mantener máximo 2 tokens por usuario
+            $tokens = $user->tokens()->orderBy('created_at', 'desc')->get();
+            if ($tokens->count() >= 2) {
+                // Borrar el más antiguo
+                $tokens->last()->delete();
+            }
+
+            // Crear nuevo token
+            $token = $user->createToken('API Token')->accessToken;
+
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+                'token' => $token,
+                'token_type' => 'Bearer',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Credenciales inválidas.',
+        ], 401);
+    }
 }

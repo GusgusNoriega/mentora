@@ -6,6 +6,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MediaAssetController;
+
+
+Route::post('/login', [AuthController::class, 'apiLogin']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -63,3 +68,15 @@ Route::middleware(['auth:web,api', 'admin'])->prefix('rbac')->group(function () 
     Route::post('roles/{roleId}/permissions/sync', [RolePermissionController::class, 'sync']);
     Route::post('roles/{roleId}/permissions/detach', [RolePermissionController::class, 'detach']);
 });
+
+// Media Assets routes without middleware for testing
+Route::prefix('media-assets')->group(function () {
+    Route::get('/', [MediaAssetController::class, 'index']);
+    Route::get('/{id}', [MediaAssetController::class, 'show']);
+    Route::put('/{id}', [MediaAssetController::class, 'update']);
+    Route::delete('/{id}', [MediaAssetController::class, 'destroy']);
+});
+
+// Separate route for store without middleware for testing
+Route::post('/media-assets', [MediaAssetController::class, 'store']);
+

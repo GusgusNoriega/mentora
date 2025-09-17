@@ -77,6 +77,10 @@
   @stack('head')
   @if(Auth::check())
     <meta name="api-token" content="{{ session('passport_token') }}">
+    <script>
+      window.apiToken = '{{ session('passport_token') }}';
+    </script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
   @endif
 </head>
 <body class="h-full bg-surface text-content">
