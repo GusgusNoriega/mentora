@@ -9,10 +9,10 @@ use App\Http\Controllers\RolePermissionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:api');
+})->middleware('auth:web,api');
 
 // User management routes
-Route::middleware(['auth:api'])->prefix('users')->group(function () {
+Route::middleware(['auth:web,api'])->prefix('users')->group(function () {
     // Perfil del usuario autenticado
     Route::get('/profile', [UserController::class, 'profile']);
 
@@ -42,7 +42,7 @@ Route::middleware(['auth:api'])->prefix('users')->group(function () {
 });
 
 // Admin-only user management routes
-Route::middleware(['auth:api', 'admin'])->prefix('admin/users')->group(function () {
+Route::middleware(['auth:web,api', 'admin'])->prefix('admin/users')->group(function () {
     // Listar todos los usuarios con filtros
     Route::get('/', [UserController::class, 'index']);
 
@@ -54,7 +54,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin/users')->group(function 
 });
 
 // RBAC protected routes (require authentication and admin role)
-Route::middleware(['auth:api', 'admin'])->prefix('rbac')->group(function () {
+Route::middleware(['auth:web,api', 'admin'])->prefix('rbac')->group(function () {
     Route::apiResource('roles', RoleController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::apiResource('permissions', PermissionController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 

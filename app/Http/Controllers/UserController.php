@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\RbacMirror;
 
 class UserController extends Controller
 {
+    protected RbacMirror $rbacMirror;
+
+    public function __construct()
+    {
+        $this->rbacMirror = app(RbacMirror::class);
+    }
     /**
      * Mostrar lista de usuarios (solo para administradores)
      */
@@ -109,9 +116,11 @@ class UserController extends Controller
             'password' => $request->password,
         ]);
 
-        // Asignar rol por defecto si se especifica y existe
+        // Asignar rol por defecto si se especifica:
+        // Sincroniza el rol en ambos guards (web y api)
         if ($request->filled('role')) {
-            $user->assignRole($request->input('role'));
+            $roleName = trim((string) $request->input('role'));
+            $this->rbacMirror->syncUserRolesBothGuardsByNames($user, [$roleName]);
         }
 
         return response()->json([
@@ -200,7 +209,8 @@ class UserController extends Controller
                 ], 403);
             }
 
-            $user->syncRoles([$newRole]);
+            // Sincroniza el(los) rol(es) en ambos guards (web y api)
+            $this->rbacMirror->syncUserRolesBothGuardsByNames($user, [$newRole]);
         }
 
         return response()->json([

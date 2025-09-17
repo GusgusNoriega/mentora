@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use App\Models\User;
 
 class RbacMirror
 {
@@ -162,5 +163,49 @@ class RbacMirror
         }
 
        return $result;
+    }
+
+    /**
+     * Sincroniza roles por nombre para ambos guards (web y api) en el usuario dado.
+     * Reemplaza TODOS los roles del usuario por el conjunto provisto, duplicándolos en ambos guards.
+     *
+     * Ejemplo: ['admin', 'editor'] => el usuario quedará con:
+     * - roles 'admin' y 'editor' en guard 'web'
+     * - roles 'admin' y 'editor' en guard 'api'
+     *
+     * Nota: Crea automáticamente los roles faltantes en el guard destino.
+     */
+    public function syncUserRolesBothGuardsByNames(User $user, array $roleNames): void
+    {
+        $names = collect($roleNames)
+            ->map(fn($v) => trim((string) $v))
+            ->filter(fn($v) => $v !== '')
+            ->unique()
+            ->values();
+
+        // Si la lista viene vacía, se eliminan todos los roles (en ambos guards)
+        if ($names->isEmpty()) {
+            $user->roles()->sync([]);
+            $this->forgetCache();
+            return;
+        }
+
+        $guards = ['web', 'api'];
+        $roleIds = [];
+
+        foreach ($names as $name) {
+            foreach ($guards as $guard) {
+                $role = Role::firstOrCreate([
+                    'name' => $name,
+                    'guard_name' => $guard,
+                ]);
+                $roleIds[] = $role->id;
+            }
+        }
+
+        // Sincronizar directamente la relación para incluir roles de ambos guards
+        $user->roles()->sync($roleIds);
+
+        $this->forgetCache();
     }
 }
