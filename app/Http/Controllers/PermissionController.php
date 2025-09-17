@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
+use App\Services\RbacMirror;
 
 class PermissionController extends Controller
 {
+    protected RbacMirror $rbacMirror;
+
+    public function __construct()
+    {
+        $this->rbacMirror = app(RbacMirror::class);
+    }
     private function jsonError(string $message, int $status = 400, array $errors = [])
     {
         return response()->json([
@@ -106,6 +113,9 @@ class PermissionController extends Controller
             'guard_name' => $guard,
         ]);
 
+        // Replicar al guard espejo
+        $this->rbacMirror->mirrorPermissionCreated($permission);
+
         return $this->jsonSuccess($permission, 'Permiso creado', null, 201);
     }
 
@@ -128,6 +138,9 @@ class PermissionController extends Controller
         if (!$permission) {
             return $this->jsonError('Permiso no encontrado', 404);
         }
+
+        $oldName = $permission->name;
+        $oldGuard = $permission->guard_name;
 
         $payload = [
             'name' => $request->has('name') ? trim((string) $request->input('name')) : $permission->name,
@@ -162,6 +175,9 @@ class PermissionController extends Controller
         $permission->guard_name = $payload['guard_name'];
         $permission->save();
 
+        // Replicar cambio al guard espejo
+        $this->rbacMirror->mirrorPermissionUpdated($permission, $oldName, $oldGuard);
+        
         return $this->jsonSuccess($permission, 'Permiso actualizado');
     }
 
@@ -173,6 +189,9 @@ class PermissionController extends Controller
         }
 
         $permission->delete();
+
+        // Replicar eliminación al guard espejo
+        $this->rbacMirror->mirrorPermissionDeleted($permission);
 
         return $this->jsonSuccess(null, 'Permiso eliminado');
     }

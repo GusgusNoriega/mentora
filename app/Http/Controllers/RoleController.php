@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
+use App\Services\RbacMirror;
 
 class RoleController extends Controller
 {
+    protected RbacMirror $rbacMirror;
+
+    public function __construct()
+    {
+        $this->rbacMirror = app(RbacMirror::class);
+    }
     private function jsonError(string $message, int $status = 400, array $errors = [])
     {
         return response()->json([
@@ -107,6 +114,9 @@ class RoleController extends Controller
             'guard_name' => $guard,
         ]);
 
+        // Replicar al guard espejo
+        $this->rbacMirror->mirrorRoleCreated($role);
+
         return $this->jsonSuccess($role, 'Rol creado', null, 201);
     }
 
@@ -129,6 +139,9 @@ class RoleController extends Controller
         if (!$role) {
             return $this->jsonError('Rol no encontrado', 404);
         }
+
+        $oldName = $role->name;
+        $oldGuard = $role->guard_name;
 
         $payload = [
             'name' => $request->has('name') ? trim((string) $request->input('name')) : $role->name,
@@ -163,6 +176,9 @@ class RoleController extends Controller
         $role->guard_name = $payload['guard_name'];
         $role->save();
 
+        // Replicar cambios al guard espejo
+        $this->rbacMirror->mirrorRoleUpdated($role, $oldName, $oldGuard);
+
         return $this->jsonSuccess($role, 'Rol actualizado');
     }
 
@@ -174,6 +190,9 @@ class RoleController extends Controller
         }
 
         $role->delete();
+
+        // Replicar eliminación al guard espejo
+        $this->rbacMirror->mirrorRoleDeleted($role);
 
         return $this->jsonSuccess(null, 'Rol eliminado');
     }

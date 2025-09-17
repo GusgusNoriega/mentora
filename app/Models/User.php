@@ -13,6 +13,12 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable, HasRoles;
 
+    /**
+     * For Spatie\Permission: force roles guard to 'web' so role checks work
+     * even when authenticating via the API (Passport).
+     */
+    protected $guard_name = 'web';
+
     protected $fillable = [
         'name', 'email', 'password',
     ];

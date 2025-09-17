@@ -114,8 +114,14 @@
   };
 
   const api = async (path, opts={}) => {
+    const token = document.querySelector('meta[name="api-token"]')?.getAttribute('content');
+    const headers = {
+      'Content-Type':'application/json',
+      'Accept':'application/json',
+      ...(token && {'Authorization': `Bearer ${token}`})
+    };
     const res = await fetch(`${apiBase}${path}`, {
-      headers: {'Content-Type':'application/json','Accept':'application/json'},
+      headers,
       ...opts
     });
     if (!res.ok) {

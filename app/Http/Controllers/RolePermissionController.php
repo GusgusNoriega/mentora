@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Services\RbacMirror;
 
 class RolePermissionController extends Controller
 {
+    protected RbacMirror $rbacMirror;
+
+    public function __construct()
+    {
+        $this->rbacMirror = app(RbacMirror::class);
+    }
     private function jsonError(string $message, int $status = 400, array $errors = [])
     {
         return response()->json([
@@ -93,6 +100,8 @@ class RolePermissionController extends Controller
 
         // Usar métodos de Spatie para limpiar caché y mantener eventos
         $role->givePermissionTo($resolved['collection']->all());
+        // Replicar en guard espejo
+        $this->rbacMirror->attachPermissions($role, $resolved['collection']);
 
         $current = $role->permissions()->where('guard_name', $guard)->get();
 
@@ -133,6 +142,8 @@ class RolePermissionController extends Controller
         }
 
         $role->syncPermissions($resolved['collection']->all());
+        // Replicar en guard espejo
+        $this->rbacMirror->syncPermissions($role, $resolved['collection']);
 
         $current = $role->permissions()->where('guard_name', $guard)->get();
 
@@ -174,6 +185,8 @@ class RolePermissionController extends Controller
 
         // Idempotente: revocar un permiso no asignado no debe fallar
         $role->revokePermissionTo($resolved['collection']->all());
+        // Replicar en guard espejo
+        $this->rbacMirror->detachPermissions($role, $resolved['collection']);
 
         $current = $role->permissions()->where('guard_name', $guard)->get();
 

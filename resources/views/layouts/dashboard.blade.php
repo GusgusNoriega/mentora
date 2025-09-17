@@ -75,6 +75,9 @@
     }
   </style>
   @stack('head')
+  @if(Auth::check())
+    <meta name="api-token" content="{{ session('passport_token') }}">
+  @endif
 </head>
 <body class="h-full bg-surface text-content">
   <div class="min-h-screen flex" data-component="RootLayout">

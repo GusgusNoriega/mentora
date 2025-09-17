@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Passport\Token;
 
 class AuthController extends Controller
 {
@@ -28,6 +29,22 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            // Gestionar tokens: mantener máximo 2 tokens por usuario
+            $tokens = $user->tokens()->orderBy('created_at', 'desc')->get();
+            if ($tokens->count() >= 2) {
+                // Borrar el más antiguo (el último en la lista ordenada desc)
+                $tokens->last()->delete();
+            }
+
+            // Crear nuevo token
+            $token = $user->createToken('API Token')->accessToken;
+
+            // Guardar token en sesión
+            $request->session()->put('passport_token', $token);
+
             return redirect()->intended(route('dashboard'));
         }
 
@@ -38,6 +55,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user) {
+            // Revocar todos los tokens del usuario al cerrar sesión
+            $user->tokens()->delete();
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
