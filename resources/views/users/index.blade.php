@@ -166,7 +166,7 @@
 
   // Token desde layout (head)
   const TOKEN = document.querySelector('meta[name="api-token"]')?.content || '';
-  const API_BASE = '/api';
+  const API_BASE = '/mentora/public/api';
   const ADMIN_USERS_BASE = `${API_BASE}/admin/users`;
   const USERS_BASE = `${API_BASE}/users`;
 

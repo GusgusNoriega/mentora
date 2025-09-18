@@ -89,7 +89,7 @@
 (function () {
   const $ = (s, el=document) => el.querySelector(s);
   const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
-  const apiBase = '/api/rbac';
+  const apiBase = '/mentora/public/api/rbac';
   const state = {
     roles: [],
     rolesMeta: {current_page:1, last_page:1, per_page:10, total:0},

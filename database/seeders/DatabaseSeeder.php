@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RbacSeeder::class,
             DefaultUserSeeder::class,
             PassportKeysSeeder::class,
+            CleanUploadsSeeder::class,
         ]);
     }
 }

@@ -69,14 +69,14 @@ Route::middleware(['auth:web,api', 'admin'])->prefix('rbac')->group(function () 
     Route::post('roles/{roleId}/permissions/detach', [RolePermissionController::class, 'detach']);
 });
 
-// Media Assets routes without middleware for testing
-Route::prefix('media-assets')->group(function () {
-    Route::get('/', [MediaAssetController::class, 'index']);
-    Route::get('/{id}', [MediaAssetController::class, 'show']);
-    Route::put('/{id}', [MediaAssetController::class, 'update']);
-    Route::delete('/{id}', [MediaAssetController::class, 'destroy']);
+
+// =======================
+// MEDIA (protegido por Passport)
+// =======================
+Route::middleware(['auth:web,api'])->prefix('media')->group(function () {
+    Route::get('/', [MediaAssetController::class, 'index']);      // GET /api/media
+    Route::get('/{id}', [MediaAssetController::class, 'show']);   // GET /api/media/{id}
+    Route::post('/', [MediaAssetController::class, 'store']);     // POST /api/media
+    Route::patch('/{id}', [MediaAssetController::class, 'update']);// PATCH /api/media/{id}
+    Route::delete('/{id}', [MediaAssetController::class, 'destroy']);// DELETE /api/media/{id}
 });
-
-// Separate route for store without middleware for testing
-Route::post('/media-assets', [MediaAssetController::class, 'store']);
-
