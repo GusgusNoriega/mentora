@@ -25,29 +25,62 @@ class MediaAssetController extends Controller
         }
 
         $perPage = (int)($request->integer('per_page') ?: 20);
-        $perPage = max(1, min(100, $perPage));
+        $perPage = max(1, min(10, $perPage));
 
         $query = MediaAsset::where('owner_id', $user->id);
 
         if ($request->filled('type')) {
             $query->where('type', $request->string('type'));
         }
+
         if ($request->filled('provider')) {
             $query->where('provider', $request->string('provider'));
         }
-        if ($request->filled('q')) {
-            $q = $request->string('q');
-            $query->where(function ($qBuilder) use ($q) {
-                $qBuilder->where('url', 'like', "%{$q}%")
-                         ->orWhere('storage_path', 'like', "%{$q}%")
-                         ->orWhere('mime_type', 'like', "%{$q}%");
+
+        // === BÚSQUEDA unificada ===
+        // Acepta q y/o name, pero los combina como OR contra múltiples columnas.
+        $q = $request->filled('q') ? (string)$request->string('q') : null;
+        $name = $request->filled('name') ? (string)$request->string('name') : null;
+
+        if ($q !== null || $name !== null) {
+            $termQ = $q ?? $name;      // prioriza q si viene; si no, usa name
+            $termName = $name ?? $q;   // prioriza name si viene; si no, usa q
+
+            $query->where(function ($qb) use ($termQ, $termName) {
+                // Coincidencias por q (url, storage_path, mime_type)
+                if ($termQ !== null) {
+                    $qb->where(function ($qBuilder) use ($termQ) {
+                        $qBuilder->where('url', 'like', "%{$termQ}%")
+                                ->orWhere('storage_path', 'like', "%{$termQ}%")
+                                ->orWhere('mime_type', 'like', "%{$termQ}%");
+                    });
+                }
+
+                // OR por name (campo de BD)
+                if ($termName !== null) {
+                    $qb->orWhere('name', 'like', "%{$termName}%");
+                }
             });
+        }
+
+        // Filtro por lista de IDs
+        if ($request->has('ids')) {
+            $ids = $request->input('ids');
+            if (is_array($ids)) {
+                $query->whereIn('id', $ids);
+            }
+        }
+
+        
+        if ($request->filled('alt')) {
+            $query->where('alt', 'like', "%{$request->string('alt')}%");
         }
 
         $mediaAssets = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         return response()->json($mediaAssets);
     }
+
 
     /**
      * GET /api/media/{id}
@@ -93,6 +126,8 @@ class MediaAssetController extends Controller
             'type' => 'nullable|string|in:image,video,audio,document',
             'provider' => 'nullable|string',
             'duration_seconds' => 'nullable|integer|min:0',
+            'name' => 'nullable|string|max:255',
+            'alt' => 'nullable|string|max:255',
         ], [
             'file.required_without' => 'Debes enviar un archivo o una url.',
             'url.required_without' => 'Debes enviar un archivo o una url.',
@@ -134,6 +169,8 @@ class MediaAssetController extends Controller
                 'mime_type' => $mimeType,
                 'size_bytes' => $file->getSize(),
                 'duration_seconds' => $this->getDuration($file, $type),
+                'name' => $request->name,
+                'alt' => $request->alt,
                 'created_at' => now(),
             ]);
 
@@ -156,6 +193,8 @@ class MediaAssetController extends Controller
             'mime_type' => null,
             'size_bytes' => null,
             'duration_seconds' => $request->has('duration_seconds') ? $request->integer('duration_seconds') : null,
+            'name' => $request->name,
+            'alt' => $request->alt,
             'created_at' => now(),
         ]);
 
@@ -189,6 +228,8 @@ class MediaAssetController extends Controller
             'type' => 'sometimes|string|in:image,video,audio,document',
             'provider' => 'sometimes|string',
             'duration_seconds' => 'sometimes|integer|min:0',
+            'name' => 'sometimes|string|max:255',
+            'alt' => 'sometimes|string|max:255',
         ]);
 
         $disk = 'public';
@@ -255,6 +296,12 @@ class MediaAssetController extends Controller
         }
         if ($request->has('duration_seconds')) {
             $mediaAsset->duration_seconds = $request->integer('duration_seconds');
+        }
+        if ($request->has('name')) {
+            $mediaAsset->name = $request->string('name');
+        }
+        if ($request->has('alt')) {
+            $mediaAsset->alt = $request->string('alt');
         }
 
         $mediaAsset->save();

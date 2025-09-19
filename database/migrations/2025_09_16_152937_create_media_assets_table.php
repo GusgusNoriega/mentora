@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('mime_type')->nullable();
             $table->unsignedBigInteger('size_bytes')->nullable();
             $table->integer('duration_seconds')->nullable();
+            $table->string('name')->nullable();
+            $table->string('alt')->nullable();
             $table->timestamp('created_at')->useCurrent();
 
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');

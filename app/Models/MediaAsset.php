@@ -23,6 +23,8 @@ class MediaAsset extends Model
         'size_bytes',
         'duration_seconds',
         'created_at',
+        'name',
+        'alt',
     ];
 
     protected $casts = [
