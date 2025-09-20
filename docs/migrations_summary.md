@@ -664,6 +664,8 @@ Este archivo contiene un resumen de todas las migraciones de la base de datos, i
 - mime_type: string (nullable)
 - size_bytes: unsignedBigInteger (nullable)
 - duration_seconds: integer (nullable)
+- name: string (nullable)
+- alt: string (nullable)
 - created_at: timestamp (useCurrent)
 
 **Relaciones:**
