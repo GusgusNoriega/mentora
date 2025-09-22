@@ -142,7 +142,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label class="block">
                 <span class="text-sm text-muted">Rol (opcional)</span>
-                <input id="users-role" type="text" placeholder="admin, student, etc." class="mt-1 w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-surface px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring">
+                <x-role-select id="users-role" name="role" placeholder="Selecciona un rol" />
               </label>
             </div>
             <div class="flex items-center justify-end gap-2 pt-2">

@@ -25,6 +25,7 @@ class RbacSeeder extends Seeder
             'posts.edit',
             'posts.delete',
             'settings.manage',
+            'view.all.media',
         ];
 
         foreach ($permissions as $name) {

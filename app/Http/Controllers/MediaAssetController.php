@@ -27,7 +27,10 @@ class MediaAssetController extends Controller
         $perPage = (int)($request->integer('per_page') ?: 20);
         $perPage = max(1, min(10, $perPage));
 
-        $query = MediaAsset::where('owner_id', $user->id);
+        $query = MediaAsset::query();
+        if (!$user->hasPermissionTo('view.all.media')) {
+            $query->where('owner_id', $user->id);
+        }
 
         if ($request->filled('type')) {
             $query->where('type', $request->string('type'));
@@ -214,9 +217,11 @@ class MediaAssetController extends Controller
             return response()->json(['message' => 'No users available'], 500);
         }
 
-        $mediaAsset = MediaAsset::where('id', $id)
-            ->where('owner_id', $user->id)
-            ->first();
+        $query = MediaAsset::where('id', $id);
+        if (!$user->hasPermissionTo('view.all.media')) {
+            $query->where('owner_id', $user->id);
+        }
+        $mediaAsset = $query->first();
 
         if (!$mediaAsset) {
             return response()->json(['message' => 'Archivo no encontrado'], 404);

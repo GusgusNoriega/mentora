@@ -208,7 +208,7 @@
 
   // Fetchers
   const loadRoles = async () => {
-    const q = new URLSearchParams({page: state.rolePage, per_page: 10, sort: 'name', order: 'asc', q: state.roleQ});
+    const q = new URLSearchParams({page: state.rolePage, per_page: 3, sort: 'name', order: 'asc', q: state.roleQ});
     const js = await api(`/roles?${q.toString()}`);
     state.roles = js.data || [];
     state.rolesMeta = js.meta?.pagination || state.rolesMeta;
@@ -216,7 +216,7 @@
   };
 
   const loadPermissions = async () => {
-    const q = new URLSearchParams({page: state.permPage, per_page: 10, sort: 'name', order: 'asc', q: state.permQ});
+    const q = new URLSearchParams({page: state.permPage, per_page: 3, sort: 'name', order: 'asc', q: state.permQ});
     const js = await api(`/permissions?${q.toString()}`);
     state.perms = js.data || [];
     state.permsMeta = js.meta?.pagination || state.permsMeta;

@@ -50,7 +50,7 @@ class PermissionController extends Controller
             'per_page' => ['sometimes','integer','min:1','max:100'],
             'sort' => ['sometimes','in:name'],
             'order' => ['sometimes','in:asc,desc'],
-            'q' => ['sometimes','string','max:255'],
+            'q' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
