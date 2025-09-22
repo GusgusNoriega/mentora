@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::view('/media', 'media.index')->name('media.index');
     Route::view('/media-test', 'media.test')->name('media.test');
     Route::view('/media-manager', 'media.manager')->name('media.manager');
+    Route::view('/courses/manage', 'courses.manage')->name('courses.manage');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

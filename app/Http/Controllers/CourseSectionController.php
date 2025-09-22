@@ -17,7 +17,7 @@ class CourseSectionController extends Controller
         $course = Course::findOrFail($courseId);
 
         $sections = $course->sections()->ordered()->with(['lessons' => function ($query) {
-            $query->ordered()->withCount('mediaAssets');
+            $query->ordered()->withCount('media');
         }])->withCount('lessons')->get();
 
         return response()->json([
@@ -36,7 +36,7 @@ class CourseSectionController extends Controller
     {
         $course = Course::findOrFail($courseId);
         $section = $course->sections()->with(['lessons' => function ($query) {
-            $query->ordered()->with(['mediaAssets', 'quiz']);
+            $query->ordered()->with(['media', 'quiz']);
         }])->findOrFail($id);
 
         return response()->json([

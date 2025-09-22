@@ -19,7 +19,7 @@ class CourseLessonController extends Controller
         $course = Course::findOrFail($courseId);
         $section = $course->sections()->findOrFail($sectionId);
 
-        $lessons = $section->lessons()->ordered()->with(['mediaAssets', 'quiz'])->withCount('progressRecords')->get();
+        $lessons = $section->lessons()->ordered()->with(['media', 'quiz'])->withCount('progressRecords')->get();
 
         return response()->json([
             'success' => true,
@@ -37,7 +37,7 @@ class CourseLessonController extends Controller
     {
         $course = Course::findOrFail($courseId);
         $section = $course->sections()->findOrFail($sectionId);
-        $lesson = $section->lessons()->with(['mediaAssets', 'quiz' => function ($query) {
+        $lesson = $section->lessons()->with(['media', 'quiz' => function ($query) {
             $query->with(['questions' => function ($q) {
                 $q->with('options');
             }]);
@@ -116,7 +116,7 @@ class CourseLessonController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $lesson->load(['mediaAssets', 'quiz']),
+            'data' => $lesson->load(['media', 'quiz']),
             'meta' => [
                 'message' => 'Lección creada exitosamente'
             ]
@@ -178,7 +178,7 @@ class CourseLessonController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $lesson->fresh(['mediaAssets', 'quiz']),
+            'data' => $lesson->fresh(['media', 'quiz']),
             'meta' => [
                 'message' => 'Lección actualizada exitosamente'
             ]

@@ -92,8 +92,8 @@ class CourseController extends Controller
             'categories',
             'tags',
             'sections' => function ($query) {
-                $query->orderBy('order')->with(['lessons' => function ($q) {
-                    $q->orderBy('order')->with(['mediaAssets', 'quiz']);
+                $query->ordered()->with(['lessons' => function ($q) {
+                    $q->ordered()->with(['media', 'quiz']);
                 }]);
             },
             'reviews' => function ($query) {

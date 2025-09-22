@@ -73,6 +73,14 @@ class CourseLesson extends Model
     }
 
     /**
+     * Campos dinámicos de la lección.
+     */
+    public function fields(): HasMany
+    {
+        return $this->hasMany(LessonField::class, 'lesson_id');
+    }
+
+    /**
      * Alcance para ordenar por posición.
      */
     public function scopeOrdered($query)

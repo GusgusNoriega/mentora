@@ -19,7 +19,7 @@
         </a>
       </li>
       <li>
-        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-brand-100 dark:hover:bg-white/5 transition">
+        <a href="{{ route('courses.manage') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-brand-100 dark:hover:bg-white/5 transition">
           <svg class="h-5 w-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12l-10 7L2 12l10-7 10 7z"/><path d="M2 12l10 7 10-7"/><path d="M2 12l10-7 10 7"/><path d="M12 19V5"/></svg>
           <span class="font-medium">Cursos</span>
         </a>
