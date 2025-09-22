@@ -16,6 +16,7 @@ Route::middleware('auth')->group(function () {
 
     Route::view('/rbac', 'rbac.index')->name('rbac.index');
     Route::view('/users', 'users.index')->name('users.index');
+    Route::view('/categories', 'categories.index')->name('categories.index');
     Route::view('/media', 'media.index')->name('media.index');
     Route::view('/media-test', 'media.test')->name('media.test');
     Route::view('/media-manager', 'media.manager')->name('media.manager');

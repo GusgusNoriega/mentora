@@ -8,6 +8,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MediaAssetController;
+use App\Http\Controllers\CategoryController;
 
 
 Route::post('/login', [AuthController::class, 'apiLogin']);
@@ -79,4 +80,15 @@ Route::middleware(['auth:web,api'])->prefix('media')->group(function () {
     Route::post('/', [MediaAssetController::class, 'store']);     // POST /api/media
     Route::patch('/{id}', [MediaAssetController::class, 'update']);// PATCH /api/media/{id}
     Route::delete('/{id}', [MediaAssetController::class, 'destroy']);// DELETE /api/media/{id}
+    });
+
+// =======================
+// CATEGORIES (protegido por Passport)
+// =======================
+Route::middleware(['auth:web,api'])->prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);      // GET /api/categories
+    Route::get('/{id}', [CategoryController::class, 'show']);   // GET /api/categories/{id}
+    Route::post('/', [CategoryController::class, 'store']);     // POST /api/categories
+    Route::put('/{id}', [CategoryController::class, 'update']); // PUT /api/categories/{id}
+    Route::delete('/{id}', [CategoryController::class, 'destroy']);// DELETE /api/categories/{id}
 });

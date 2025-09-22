@@ -3,7 +3,7 @@
 @section('title', 'Usuarios • Mentora')
 
 @section('content')
-  <div id="users-page-container" class="space-y-6">
+  <div id="users-page-container">
     <!-- Encabezado -->
     <div class="flex items-center justify-between">
       <div>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Tabla de usuarios (solo admin) -->
-    <div id="users-admin-section" class="card rounded-xl2 overflow-hidden hidden">
+    <div id="users-admin-section" class="card rounded-xl2 overflow-hidden hidden mt-5">
       <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
           <thead class="bg-gray-50 dark:bg-slate-800">
