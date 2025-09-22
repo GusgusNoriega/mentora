@@ -9,6 +9,7 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MediaAssetController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TagController;
 
 
 Route::post('/login', [AuthController::class, 'apiLogin']);
@@ -91,4 +92,15 @@ Route::middleware(['auth:web,api'])->prefix('categories')->group(function () {
     Route::post('/', [CategoryController::class, 'store']);     // POST /api/categories
     Route::put('/{id}', [CategoryController::class, 'update']); // PUT /api/categories/{id}
     Route::delete('/{id}', [CategoryController::class, 'destroy']);// DELETE /api/categories/{id}
+});
+
+// =======================
+// TAGS (protegido por Passport)
+// =======================
+Route::middleware(['auth:web,api'])->prefix('tags')->group(function () {
+    Route::get('/', [TagController::class, 'index']);      // GET /api/tags
+    Route::get('/{id}', [TagController::class, 'show']);   // GET /api/tags/{id}
+    Route::post('/', [TagController::class, 'store']);     // POST /api/tags
+    Route::put('/{id}', [TagController::class, 'update']); // PUT /api/tags/{id}
+    Route::delete('/{id}', [TagController::class, 'destroy']);// DELETE /api/tags/{id}
 });

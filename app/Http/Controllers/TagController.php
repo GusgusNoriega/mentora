@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class CategoryController extends Controller
+class TagController extends Controller
 {
     /**
-     * Mostrar lista de categorías
+     * Mostrar lista de etiquetas
      */
     public function index(Request $request)
     {
-        $query = Category::query()->ordered();
+        $query = Tag::query()->ordered();
 
         // Filtros opcionales
         if ($request->has('search')) {
@@ -22,57 +22,52 @@ class CategoryController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
-        if ($request->has('parent_id')) {
-            $query->where('parent_id', $request->parent_id);
-        }
-
-        $categories = $query->with(['parent', 'children'])->withCount('courses')->paginate(15);
+        $tags = $query->withCount('courses')->paginate(15);
 
         return response()->json([
             'success' => true,
-            'data' => $categories,
+            'data' => $tags,
             'meta' => [
-                'message' => 'Categorías obtenidas exitosamente'
+                'message' => 'Etiquetas obtenidas exitosamente'
             ]
         ]);
     }
 
     /**
-     * Mostrar una categoría específica
+     * Mostrar una etiqueta específica
      */
     public function show($id)
     {
-        $category = Category::with(['parent', 'children', 'courses'])->findOrFail($id);
+        $tag = Tag::with(['courses'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
-            'data' => $category,
+            'data' => $tag,
             'meta' => [
-                'message' => 'Categoría obtenida exitosamente'
+                'message' => 'Etiqueta obtenida exitosamente'
             ]
         ]);
     }
 
     /**
-     * Crear una nueva categoría
+     * Crear una nueva etiqueta
      */
     public function store(Request $request)
     {
-        // Solo administradores pueden crear categorías
+        // Solo administradores pueden crear etiquetas
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'meta' => [
-                    'message' => 'No tienes permisos para crear categorías'
+                    'message' => 'No tienes permisos para crear etiquetas'
                 ]
             ], 403);
         }
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories',
-            'parent_id' => 'nullable|exists:categories,id',
+            'slug' => 'nullable|string|max:255|unique:tags',
         ]);
 
         if ($validator->fails()) {
@@ -86,11 +81,11 @@ class CategoryController extends Controller
             ], 422);
         }
 
-        $data = $request->only(['name', 'parent_id']);
+        $data = $request->only(['name']);
         $data['slug'] = $request->slug ?? Str::slug($request->name);
 
         // Verificar unicidad del slug
-        if (Category::where('slug', $data['slug'])->exists()) {
+        if (Tag::where('slug', $data['slug'])->exists()) {
             return response()->json([
                 'success' => false,
                 'data' => null,
@@ -100,39 +95,38 @@ class CategoryController extends Controller
             ], 422);
         }
 
-        $category = Category::create($data);
+        $tag = Tag::create($data);
 
         return response()->json([
             'success' => true,
-            'data' => $category->load(['parent', 'children']),
+            'data' => $tag->load(['courses']),
             'meta' => [
-                'message' => 'Categoría creada exitosamente'
+                'message' => 'Etiqueta creada exitosamente'
             ]
         ], 201);
     }
 
     /**
-     * Actualizar una categoría
+     * Actualizar una etiqueta
      */
     public function update(Request $request, $id)
     {
-        // Solo administradores pueden actualizar categorías
+        // Solo administradores pueden actualizar etiquetas
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'meta' => [
-                    'message' => 'No tienes permisos para actualizar categorías'
+                    'message' => 'No tienes permisos para actualizar etiquetas'
                 ]
             ], 403);
         }
 
-        $category = Category::findOrFail($id);
+        $tag = Tag::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
-            'slug' => ['sometimes', 'nullable', 'string', 'max:255', 'unique:categories,slug,' . $category->id],
-            'parent_id' => 'nullable|exists:categories,id',
+            'slug' => ['sometimes', 'nullable', 'string', 'max:255', 'unique:tags,slug,' . $tag->id],
         ]);
 
         if ($validator->fails()) {
@@ -146,12 +140,12 @@ class CategoryController extends Controller
             ], 422);
         }
 
-        $data = $request->only(['name', 'slug', 'parent_id']);
+        $data = $request->only(['name', 'slug']);
 
         if (isset($data['name']) && !isset($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
             // Verificar unicidad
-            if (Category::where('slug', $data['slug'])->where('id', '!=', $category->id)->exists()) {
+            if (Tag::where('slug', $data['slug'])->where('id', '!=', $tag->id)->exists()) {
                 return response()->json([
                     'success' => false,
                     'data' => null,
@@ -162,64 +156,53 @@ class CategoryController extends Controller
             }
         }
 
-        $category->update($data);
+        $tag->update($data);
 
         return response()->json([
             'success' => true,
-            'data' => $category->fresh(['parent', 'children']),
+            'data' => $tag->fresh(['courses']),
             'meta' => [
-                'message' => 'Categoría actualizada exitosamente'
+                'message' => 'Etiqueta actualizada exitosamente'
             ]
         ]);
     }
 
     /**
-     * Eliminar una categoría
+     * Eliminar una etiqueta
      */
     public function destroy(Request $request, $id)
     {
-        // Solo administradores pueden eliminar categorías
+        // Solo administradores pueden eliminar etiquetas
         if (!$request->user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'meta' => [
-                    'message' => 'No tienes permisos para eliminar categorías'
+                    'message' => 'No tienes permisos para eliminar etiquetas'
                 ]
             ], 403);
         }
 
-        $category = Category::findOrFail($id);
-
-        // Verificar si tiene subcategorías
-        if ($category->children()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'meta' => [
-                    'message' => 'No se puede eliminar una categoría que tiene subcategorías'
-                ]
-            ], 422);
-        }
+        $tag = Tag::findOrFail($id);
 
         // Verificar si tiene cursos asociados
-        if ($category->courses()->count() > 0) {
+        if ($tag->courses()->count() > 0) {
             return response()->json([
                 'success' => false,
                 'data' => null,
                 'meta' => [
-                    'message' => 'No se puede eliminar una categoría que tiene cursos asociados'
+                    'message' => 'No se puede eliminar una etiqueta que tiene cursos asociados'
                 ]
             ], 422);
         }
 
-        $category->delete();
+        $tag->delete();
 
         return response()->json([
             'success' => true,
             'data' => null,
             'meta' => [
-                'message' => 'Categoría eliminada exitosamente'
+                'message' => 'Etiqueta eliminada exitosamente'
             ]
         ]);
     }

@@ -37,6 +37,12 @@
         </a>
       </li>
       <li>
+        <a href="{{ route('tags.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-brand-100 dark:hover:bg-white/5 transition">
+          <svg class="h-5 w-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span class="font-medium">Etiquetas</span>
+        </a>
+      </li>
+      <li>
         <a href="{{ route('rbac.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-brand-100 dark:hover:bg-white/5 transition">
           <svg class="h-5 w-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>

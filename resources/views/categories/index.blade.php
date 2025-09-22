@@ -49,6 +49,7 @@
               <th class="px-4 py-3 font-medium text-muted">Nombre</th>
               <th class="px-4 py-3 font-medium text-muted">Slug</th>
               <th class="px-4 py-3 font-medium text-muted">Categoría padre</th>
+              <th class="px-4 py-3 font-medium text-muted">Cursos</th>
               <th class="px-4 py-3 font-medium text-muted text-right">Acciones</th>
             </tr>
           </thead>
@@ -214,12 +215,14 @@
 
     const rows = items.map(c => {
       const parentName = c.parent ? c.parent.name : '-';
+      const coursesCount = c.courses_count || 0;
       return `
         <tr class="hover:bg-gray-50/60 dark:hover:bg-slate-800/60">
           <td class="px-4 py-3 whitespace-nowrap">${c.id}</td>
           <td class="px-4 py-3">${c.name}</td>
           <td class="px-4 py-3">${c.slug}</td>
           <td class="px-4 py-3">${parentName}</td>
+          <td class="px-4 py-3">${coursesCount}</td>
           <td class="px-4 py-3">
             <div class="flex items-center gap-2 justify-end">
               <button class="categories-btn-edit rounded border border-gray-200 dark:border-slate-700 px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-slate-700/40" data-id="${c.id}">Editar</button>
